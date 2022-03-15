@@ -9,8 +9,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
-    public ResponseEntity<String> test() {
-        return new ResponseEntity<>("home page", HttpStatus.OK);
-    }
+//    @GetMapping("/")
+//    public ResponseEntity<String> test() {
+//        return new ResponseEntity<>("home page", HttpStatus.OK);
+//    }
+
+//    @GetMapping("/")
+//    public String test() {
+//        return "home.html";
+//    }
 }
