@@ -3,14 +3,13 @@ package com.example.demo.controler;
 import com.example.demo.Person;
 import com.example.demo.repo.PersonRepository;
 import com.example.demo.service.RabbitSendService;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping(path = "/person")
@@ -18,7 +17,11 @@ public class MainController {
 
     @Autowired
     RabbitSendService rabbitSendService;
-    private Logger logger = Logger.getLogger(MainController.class);
+    @Autowired
+    RestTemplate restTemplate;
+
+
+    private final Logger logger = Logger.getLogger(MainController.class);
     @Autowired
     private PersonRepository personRepository;
 
@@ -29,12 +32,32 @@ public class MainController {
         return "get method";
     }
 
+    @Retry(name = "retryWithFallback", fallbackMethod = "getDefaultPerson")
+    @GetMapping(value = "/check")
+    public Person check() {
+        Person person = restTemplate.getForObject("http://localhost:8080/person/{id}",
+                Person.class, 1);
+        logger.info(person);
+        return person;
+    }
+
+    public Person getDefaultPerson(RuntimeException ex) {
+       return  new Person("0", "default", "default");
+    }
+
     @GetMapping(value = "/all")
     public Iterable<Person> getAll() {
 //        rabbitSendService.send(new Person("nam","doe"));
         logger.info("get all method");
         logger.info(personRepository.findAll());
         return personRepository.findAll();
+    }
+
+    @GetMapping(value = "/{id}")
+    public Person getPerson(@PathVariable Long id) {
+        throw  new RuntimeException("failure");
+//        logger.info("get person by id" + id);
+//        return new Person(id.toString(), "name", "surname");
     }
 
     @GetMapping(value = "/add")
