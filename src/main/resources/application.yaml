@@ -1,0 +1,41 @@
+spring:
+  jms:
+    template:
+      default-destination: test.queue
+  datasource:
+    driverClassName: org.h2.Driver
+    password: password
+    username: sa
+    url: jdbc:h2:mem:testdb
+  activemq:
+    packages:
+      trust-all: 'true'
+  profiles:
+    active: dev
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  info:
+    env:
+      enabled: 'true'
+    java:
+      enabled: 'true'
+  endpoint:
+    health:
+      show-details: always
+info:
+  app:
+    encoding: '@project.build.sourceEncoding@'
+    java:
+      source: '@java.version@'
+      target: '@java.version@'
+  contact:
+    email: email@email.com
+
+---
+spring:
+  profiles: docker
