@@ -36,6 +36,11 @@ info:
   contact:
     email: email@email.com
 
+logging:
+  level:
+    root: WARN
+    com.example.demo: DEBUG
+
 ---
 spring:
   profiles: docker

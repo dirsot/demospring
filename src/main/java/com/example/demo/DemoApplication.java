@@ -1,12 +1,14 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.util.UrlPathHelper;
 
 @SpringBootApplication
 public class DemoApplication implements WebMvcConfigurer {
@@ -20,11 +22,25 @@ public class DemoApplication implements WebMvcConfigurer {
         return new RestTemplate();
     }
 
+    @Bean("singletonDouble")
+    @Scope("singleton")
+    @Lazy
+    @Primary
+    public Double getDoubleSingleton() {
+        return Math.random();
+    }
+
+    @Bean("prototypeDouble")
+    @Scope("prototype")
+    @DependsOn("singletonDouble")
+    public Double getDoublePrototype() {
+        return Math.random();
+    }
+
 //	@Bean
 //	public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
 //		return new Jackson2JsonMessageConverter();
 //	}
-
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("home");

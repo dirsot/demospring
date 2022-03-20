@@ -5,21 +5,52 @@ import com.example.demo.repo.PersonRepository;
 import com.example.demo.service.RabbitSendService;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-@RestController
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.util.HashMap;
+
+@RestController // rest controller
+@Profile("dev")
 @RequestMapping(path = "/person")
-public class MainController {
+//@Scope("prototype")
+@Scope("singleton")
+public class MainController implements InitializingBean, DisposableBean, FactoryBean {
 
     @Autowired
     RabbitSendService rabbitSendService;
     @Autowired
     RestTemplate restTemplate;
 
+    @Inject
+    @Qualifier("singletonDouble")
+    Double doubleSingleton;
+
+    @Autowired
+    @Qualifier("prototypeDouble")
+    Double doublePrototype;
+
+    @Value("#{1 lt 1}")
+    private String value;
+
+    @Value("${info.contact.email}")
+    private String email;
 
     private final Logger logger = Logger.getLogger(MainController.class);
     @Autowired
@@ -32,6 +63,26 @@ public class MainController {
         return "get method";
     }
 
+    @GetMapping(value = "/scope", produces = "application/json")
+    public HashMap<String, Object> scope(@CookieValue(required = false,name = "cookieName") String cookie,
+                                         @RequestHeader(required = false,name = "Keep-Alive") String header) {
+        logger.info("get method");
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("singleton",doubleSingleton);
+        map.put("prototype",doublePrototype);
+
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression exp = parser.parseExpression("new String('hello world').toUpperCase()");
+        String message = exp.getValue(String.class);
+
+        map.put("message",message);
+        map.put("value",value);
+        map.put("email",email);
+        map.put("cookie",cookie);
+        map.put("header",header);
+        return map;
+    }
+
     @Retry(name = "retryWithFallback", fallbackMethod = "getDefaultPerson")
     @GetMapping(value = "/check")
     public Person check() {
@@ -42,7 +93,7 @@ public class MainController {
     }
 
     public Person getDefaultPerson(RuntimeException ex) {
-       return  new Person("0", "default", "default");
+       return  new Person(0L, "default", "default");
     }
 
     @GetMapping(value = "/all")
@@ -60,7 +111,13 @@ public class MainController {
 //        return new Person(id.toString(), "name", "surname");
     }
 
+//    @ExceptionHandler(RuntimeException.class)
+    public String handleException(NullPointerException e){
+        return "error";
+    }
+
     @GetMapping(value = "/add")
+    @ResponseBody // redundant by restcontroller
     public String addPerson(@RequestParam String name, @RequestParam String surname,
                             @AuthenticationPrincipal User user) {
 
@@ -74,5 +131,36 @@ public class MainController {
         logger.info(user.getAuthorities());
         rabbitSendService.send(person);
         return "add method";
+    }
+
+    @PostConstruct
+    public void init(){
+        logger.info("all set init");
+
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        logger.info("all set after");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        logger.info("ending");
+    }
+
+    @Override
+    public Object getObject() throws Exception {
+        return null;
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return null;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return FactoryBean.super.isSingleton();
     }
 }
