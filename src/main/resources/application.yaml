@@ -18,6 +18,10 @@ spring:
     properties:
       hibernate:
         format_sql:true
+#  config:
+#    activate:
+#      on-profile: dev
+
 management:
   endpoints:
     web:
@@ -44,6 +48,11 @@ logging:
   level:
     root: WARN
     com.example.demo: DEBUG
+
+hibernate:
+  connection:
+    isolation: 1
+
 
 ---
 spring:

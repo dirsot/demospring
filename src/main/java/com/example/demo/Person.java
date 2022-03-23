@@ -21,10 +21,28 @@ import java.util.*;
 //mapping of inheritanca classe, with abstract class
 //primary key generators
 //secondary table
+//dirty read - read uncommited
+//phantom read - second read returns diff data
+
+//read uncommited/read comm/repread/ serializbled
 
 // security block access to page
 //actuator
 
+//get - eager, returns null/ load - lazy returns proxy ,throws exc now or later
+
+//s.save
+
+//attach object
+//s.update
+//s/lock
+
+//s.merge - merged transient/detached object or creates new persistent
+
+//s.evict(val) -detach object
+//s.clear detach all
+
+//s.flush - execute db operation
 
 @Entity
 @Data
@@ -79,6 +97,12 @@ public class Person implements Serializable {
     @Embedded
     private Address homeAddress;
 
+    @Version
+    private int version;
+
+    @OneToMany(cascade = javax.persistence.CascadeType.ALL)
+    private List<Child> children = new ArrayList<>();
+
     public Person(String name, String surname) {
         this.name = name;
         this.surname = surname;
@@ -86,6 +110,10 @@ public class Person implements Serializable {
         list.add("aa");
         map.put("bb", 1L);
         map.put("aa", 2L);
+        children.add(new Child(1L, "name", "tran"));
+        children.add(new Child(2L, "name2", "tran"));
+//        children.add(new Child("name"));
+//        children.add(new Child("name2"));
     }
 
     public Person(Long id, String name, String surname) {

@@ -1,19 +1,19 @@
 package com.example.demo.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.endpoint.annotation.DeleteOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.annotation.WriteOperation;
 import org.springframework.stereotype.Component;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @Component
-@Endpoint(id="notes")
+@Endpoint(id = "notes")
 public class NotesEndpoint {
 
     private List<Note> notes = Arrays.asList(new Note("init"));
@@ -28,6 +28,7 @@ public class NotesEndpoint {
         notes.add(new Note(text));
         return notes;
     }
+
     @DeleteOperation
     public List<Note> deleteNote(int index) {
         if (index < notes.size()) {
@@ -35,12 +36,13 @@ public class NotesEndpoint {
         }
         return notes;
     }
+
     @RequiredArgsConstructor
     private class Note {
         @Getter
-        private Date time = new Date();
-        @Getter
         private final String text;
+        @Getter
+        private final Date time = new Date();
     }
 }
 

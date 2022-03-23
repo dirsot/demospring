@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -31,28 +30,23 @@ import java.util.HashMap;
 @RequestMapping(path = "/person")
 //@Scope("prototype")
 @Scope("singleton")
-public class MainController implements InitializingBean, DisposableBean, FactoryBean {
+public class MainController implements InitializingBean, DisposableBean, FactoryBean<Person> {
 
+    private final Logger logger = Logger.getLogger(MainController.class);
     @Autowired
     RabbitSendService rabbitSendService;
     @Autowired
     RestTemplate restTemplate;
-
     @Inject
     @Qualifier("singletonDouble")
     Double doubleSingleton;
-
     @Autowired
     @Qualifier("prototypeDouble")
     Double doublePrototype;
-
     @Value("#{1 lt 1}")
     private String value;
-
     @Value("${info.contact.email}")
     private String email;
-
-    private final Logger logger = Logger.getLogger(MainController.class);
     @Autowired
     private PersonRepository personRepository;
 
@@ -64,22 +58,22 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     }
 
     @GetMapping(value = "/scope", produces = "application/json")
-    public HashMap<String, Object> scope(@CookieValue(required = false,name = "cookieName") String cookie,
-                                         @RequestHeader(required = false,name = "Keep-Alive") String header) {
+    public HashMap<String, Object> scope(@CookieValue(required = false, name = "cookieName") String cookie,
+                                         @RequestHeader(required = false, name = "Keep-Alive") String header) {
         logger.info("get method");
         HashMap<String, Object> map = new HashMap<>();
-        map.put("singleton",doubleSingleton);
-        map.put("prototype",doublePrototype);
+        map.put("singleton", doubleSingleton);
+        map.put("prototype", doublePrototype);
 
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression("new String('hello world').toUpperCase()");
         String message = exp.getValue(String.class);
 
-        map.put("message",message);
-        map.put("value",value);
-        map.put("email",email);
-        map.put("cookie",cookie);
-        map.put("header",header);
+        map.put("message", message);
+        map.put("value", value);
+        map.put("email", email);
+        map.put("cookie", cookie);
+        map.put("header", header);
         return map;
     }
 
@@ -93,7 +87,7 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     }
 
     public Person getDefaultPerson(RuntimeException ex) {
-       return  new Person(0L, "default", "default");
+        return new Person(0L, "default", "default");
     }
 
     @GetMapping(value = "/all")
@@ -106,17 +100,33 @@ public class MainController implements InitializingBean, DisposableBean, Factory
 
     @GetMapping(value = "/{id}")
     public Person getPerson(@PathVariable Long id) {
-        throw  new RuntimeException("failure");
+        throw new RuntimeException("failure");
 //        logger.info("get person by id" + id);
 //        return new Person(id.toString(), "name", "surname");
     }
 
-//    @ExceptionHandler(RuntimeException.class)
-    public String handleException(NullPointerException e){
+    //    @Transactional
+    @GetMapping(value = "/safe/{id}")
+    public Person getPerson2(@PathVariable Long id) {
+        logger.info("get person by id" + id);
+        Person a = personRepository.findById(id).get();
+
+//        Person person = new Person("aaa", "aaa");
+//        logger.info(personRepository.save(person));
+
+        logger.info("again get person by id" + id);
+        Person b = personRepository.findById(id).get();
+        logger.info("== check " + (a == b));
+        return b;
+    }
+
+    //@ExceptionHandler(RuntimeException.class)
+    public String handleException(NullPointerException e) {
         return "error";
     }
 
     @GetMapping(value = "/add")
+//    @Transactional
     @ResponseBody // redundant by restcontroller
     public String addPerson(@RequestParam String name, @RequestParam String surname,
                             @AuthenticationPrincipal User user) {
@@ -134,23 +144,23 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         logger.info("all set init");
 
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         logger.info("all set after");
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         logger.info("ending");
     }
 
     @Override
-    public Object getObject() throws Exception {
+    public Person getObject() {
         return null;
     }
 

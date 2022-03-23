@@ -13,12 +13,12 @@
 <p>New here? Click
     <a th:href="@{/register}">here</a> to register.</p>
 <!-- tag::thAction[] -->
-<form method="POST" th:action="@{/login}" id="loginForm">
+<form id="loginForm" method="POST" th:action="@{/login}">
     <!-- end::thAction[] -->
     <label for="username">Username: </label>
-    <input type="text" name="username" id="username" value="user2"/><br/>
+    <input id="username" name="username" type="text" value="user2"/><br/>
     <label for="password">Password: </label>
-    <input type="password" name="password" id="password" value="pass"/><br/>
+    <input id="password" name="password" type="password" value="pass"/><br/>
     <input type="submit" value="Login"/>
 </form>
 

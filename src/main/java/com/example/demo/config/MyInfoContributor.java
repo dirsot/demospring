@@ -1,10 +1,11 @@
 package com.example.demo.config;
 
+import org.springframework.boot.actuate.info.Info.Builder;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.boot.actuate.info.Info.Builder;
 
 @Component
 public class MyInfoContributor implements InfoContributor {
