@@ -1,4 +1,4 @@
-package com.example.demo.controler;
+package com.example.demo.controller;
 
 import com.example.demo.Person;
 import com.example.demo.repo.PersonRepository;
@@ -92,17 +92,12 @@ public class MainController implements InitializingBean, DisposableBean, Factory
 
     @GetMapping(value = "/all")
     public Iterable<Person> getAll() {
-//        rabbitSendService.send(new Person("nam","doe"));
-        logger.info("get all method");
-        logger.info(personRepository.findAll());
         return personRepository.findAll();
     }
 
     @GetMapping(value = "/{id}")
     public Person getPerson(@PathVariable Long id) {
         throw new RuntimeException("failure");
-//        logger.info("get person by id" + id);
-//        return new Person(id.toString(), "name", "surname");
     }
 
     //    @Transactional
