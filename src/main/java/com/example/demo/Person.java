@@ -126,4 +126,8 @@ public class Person implements Serializable {
         this.surname = surname;
     }
 
+    @PostPersist
+    private void postPersist(){
+        System.out.println("PostPersist on person "+ this);
+    }
 }
