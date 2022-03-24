@@ -39,6 +39,7 @@ import java.util.*;
 
 //s.merge - merged transient/detached object or creates new persistent
 
+//s.refresh
 //s.evict(val) -detach object
 //s.clear detach all
 
@@ -53,6 +54,8 @@ import java.util.*;
         indexes = @Index(columnList = "name", name = "IndexName"))
 @SecondaryTable(name = "person2")
 @Check(constraints = "regexp_like(surname,'^a')")
+@FilterDef(name = "idFilter", parameters = @ParamDef(name = "fromId", type = "long"))
+@Filter(name = "idFilter", condition = "id > :fromId")
 public class Person implements Serializable {
 
     private final Long age = 2L;
@@ -101,6 +104,7 @@ public class Person implements Serializable {
     private int version;
 
     @OneToMany(cascade = javax.persistence.CascadeType.ALL)
+    @Filter(name = "idFilter", condition = "id > :fromId")
     private List<Child> children = new ArrayList<>();
 
     public Person(String name, String surname) {
@@ -110,10 +114,10 @@ public class Person implements Serializable {
         list.add("aa");
         map.put("bb", 1L);
         map.put("aa", 2L);
-        children.add(new Child(1L, "name", "tran"));
-        children.add(new Child(2L, "name2", "tran"));
-//        children.add(new Child("name"));
-//        children.add(new Child("name2"));
+//        children.add(new Child(1L, "name", "tran"));
+//        children.add(new Child(2L, "name2", "tran"));
+        children.add(new Child("name"));
+        children.add(new Child("name2"));
     }
 
     public Person(Long id, String name, String surname) {

@@ -5,6 +5,8 @@ import com.example.demo.repo.PersonRepository;
 import com.example.demo.service.RabbitSendService;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.log4j.Logger;
+import org.hibernate.Filter;
+import org.hibernate.Session;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import java.util.HashMap;
 
 @RestController // rest controller
@@ -49,6 +52,10 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     private String email;
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
 
     @GetMapping(value = "/")
     public String home() {
@@ -92,7 +99,15 @@ public class MainController implements InitializingBean, DisposableBean, Factory
 
     @GetMapping(value = "/all")
     public Iterable<Person> getAll() {
-        return personRepository.findAll();
+        Session session = entityManager.unwrap(Session.class);
+
+        Filter filter = session.enableFilter("idFilter");
+        filter.setParameter("fromId", 0L);
+
+        Iterable<Person> result = personRepository.findAll();
+        session.disableFilter("idFilter");
+
+        return result;
     }
 
     @GetMapping(value = "/{id}")
@@ -103,14 +118,17 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     //    @Transactional
     @GetMapping(value = "/safe/{id}")
     public Person getPerson2(@PathVariable Long id) {
+        logger.info("get person by query");
+        Person q = personRepository.findPersonQuery(id);
+
         logger.info("get person by id" + id);
-        Person a = personRepository.findById(id).get();
+        Person a = personRepository.findById(id).orElseThrow();
 
 //        Person person = new Person("aaa", "aaa");
 //        logger.info(personRepository.save(person));
 
         logger.info("again get person by id" + id);
-        Person b = personRepository.findById(id).get();
+        Person b = personRepository.findById(id).orElseThrow();
         logger.info("== check " + (a == b));
         return b;
     }

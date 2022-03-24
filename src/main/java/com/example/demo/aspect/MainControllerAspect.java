@@ -19,7 +19,8 @@ public class MainControllerAspect {
     }
 
     @Pointcut("within(com.example.demo.controller.HomeController)")
-    private void homeController() {}
+    private void homeController() {
+    }
 
     @Around("get1Method()")
     public Object get1Around(ProceedingJoinPoint pjp) throws Throwable {

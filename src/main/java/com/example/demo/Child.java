@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Data
@@ -16,9 +13,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Child implements Serializable {
     @Id
-//    @GeneratedValue  //set in constructor
+    @GeneratedValue  //set in constructor
     @Column(nullable = false)
-    private Long cid;
+    private Long id;
 
     private String name;
 
