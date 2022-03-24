@@ -17,7 +17,9 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
-        format_sql:true
+        format_sql: false
+        ejb:
+          interceptor: com.example.demo.config.MyInterceptor
 #  config:
 #    activate:
 #      on-profile: dev
