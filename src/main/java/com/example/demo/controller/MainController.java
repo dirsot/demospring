@@ -2,13 +2,13 @@ package com.example.demo.controller;
 
 import com.example.demo.Person;
 import com.example.demo.repo.PersonRepository;
+import com.example.demo.service.PersonService;
 import com.example.demo.service.RabbitSendService;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.log4j.Logger;
 import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,7 +33,8 @@ import java.util.HashMap;
 @RequestMapping(path = "/person")
 //@Scope("prototype")
 @Scope("singleton")
-public class MainController implements InitializingBean, DisposableBean, FactoryBean<Person> {
+public class MainController implements InitializingBean, DisposableBean//, FactoryBean<Person>
+{
 
     private final Logger logger = Logger.getLogger(MainController.class);
     @Autowired
@@ -56,6 +57,8 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private PersonService personService;
 
     @GetMapping(value = "/")
     public String home() {
@@ -115,22 +118,11 @@ public class MainController implements InitializingBean, DisposableBean, Factory
         throw new RuntimeException("failure");
     }
 
-    //    @Transactional
     @GetMapping(value = "/safe/{id}")
     public Person getPerson2(@PathVariable Long id) {
-        logger.info("get person by query");
-        Person q = personRepository.findPersonQuery(id);
-
-        logger.info("get person by id" + id);
-        Person a = personRepository.findById(id).orElseThrow();
-
-//        Person person = new Person("aaa", "aaa");
-//        logger.info(personRepository.save(person));
-
-        logger.info("again get person by id" + id);
-        Person b = personRepository.findById(id).orElseThrow();
-        logger.info("== check " + (a == b));
-        return b;
+        Person person = personService.getPerson(id);
+        logger.info("back in controller");
+        return person;
     }
 
     //@ExceptionHandler(RuntimeException.class)
@@ -139,7 +131,6 @@ public class MainController implements InitializingBean, DisposableBean, Factory
     }
 
     @GetMapping(value = "/add")
-//    @Transactional
     @ResponseBody // redundant by restcontroller
     public String addPerson(@RequestParam String name, @RequestParam String surname,
                             @AuthenticationPrincipal User user) {
@@ -172,18 +163,18 @@ public class MainController implements InitializingBean, DisposableBean, Factory
         logger.info("ending");
     }
 
-    @Override
-    public Person getObject() {
-        return null;
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return null;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return FactoryBean.super.isSingleton();
-    }
+//    @Override
+//    public Person getObject() {
+//        return null;
+//    }
+//
+//    @Override
+//    public Class<?> getObjectType() {
+//        return null;
+//    }
+//
+//    @Override
+//    public boolean isSingleton() {
+//        return FactoryBean.super.isSingleton();
+//    }
 }

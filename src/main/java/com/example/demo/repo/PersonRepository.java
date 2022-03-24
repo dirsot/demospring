@@ -4,8 +4,9 @@ import com.example.demo.Person;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-//@Transactional
+@Repository
 public interface PersonRepository extends CrudRepository<Person, Long> {
 
     @Query("SELECT p FROM Person p WHERE p.id = :id")

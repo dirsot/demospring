@@ -48,6 +48,8 @@ import java.util.*;
 @Entity
 @Data
 @ToString
+@Proxy(lazy = true)
+@BatchSize(size = 10)
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "surname"})},
@@ -92,9 +94,9 @@ public class Person implements Serializable {
     @ElementCollection
 //    @SortNatural
     @Cascade(value = CascadeType.ALL)
-    private List<String> list = new ArrayList<>();
+    private Set<String> list = new HashSet<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     private Map<String, Long> map = new HashMap<>();
 
     @Embedded
@@ -103,9 +105,13 @@ public class Person implements Serializable {
     @Version
     private int version;
 
-    @OneToMany(cascade = javax.persistence.CascadeType.ALL)
+    @BatchSize(size = 10)
+//    @LazyCollection(LazyCollectionOption.EXTRA) // extra query for size
+    @OneToMany(cascade = javax.persistence.CascadeType.ALL, fetch = FetchType.LAZY)
     @Filter(name = "idFilter", condition = "id > :fromId")
-    private List<Child> children = new ArrayList<>();
+//    @Fetch(FetchMode.SUBSELECT)// select when list is called
+//    @LazyToOne(LazyToOneOption.NO_PROXY)
+    private Set<Child> children = new HashSet<>();
 
     public Person(String name, String surname) {
         this.name = name;
@@ -127,7 +133,7 @@ public class Person implements Serializable {
     }
 
     @PostPersist
-    private void postPersist(){
-        System.out.println("PostPersist on person "+ this);
+    private void postPersist() {
+        System.out.println("PostPersist on person " + this);
     }
 }
