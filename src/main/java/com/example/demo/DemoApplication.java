@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
-//@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class DemoApplication implements WebMvcConfigurer {
 
     public static void main(String[] args) {
@@ -43,7 +42,5 @@ public class DemoApplication implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("home");
         registry.addViewController("/login");
-//        registry.addViewController("/logout");
     }
-
 }

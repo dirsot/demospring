@@ -22,22 +22,26 @@ public class MainControllerAspect {
     private void homeController() {
     }
 
+    @Pointcut("within(com.example.demo.controller.MainController)")
+    private void mainController() {
+    }
+
     @Around("get1Method()")
     public Object get1Around(ProceedingJoinPoint pjp) throws Throwable {
-        logger.warn("[1] Around get1 method:");
+        logger.warn("[1] Around method:");
         Object retVal = pjp.proceed();
-        logger.warn("[2] Around get1 method:");
+        logger.warn("[2] Around method:");
 
         return retVal;
     }
 
     @Before("get1Method()")
     public void beforeGet1Method(JoinPoint joinPoint) {
-        logger.warn("Before get1 method:" + joinPoint.getSignature());
+        logger.warn("Before method:" + joinPoint.getSignature());
     }
 
-    @Before("homeController()")
-    public void beforeHomeController(JoinPoint joinPoint) {
+    @Before("homeController() || mainController()")
+    public void beforeController(JoinPoint joinPoint) {
         logger.warn("Before method:" + joinPoint.getSignature());
     }
 

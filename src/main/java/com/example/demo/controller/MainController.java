@@ -31,26 +31,31 @@ import java.util.HashMap;
 @RestController // rest controller
 @Profile("dev")
 @RequestMapping(path = "/person")
-//@Scope("prototype")
-@Scope("singleton")
-public class MainController implements InitializingBean, DisposableBean//, FactoryBean<Person>
-{
+@Scope("prototype")
+public class MainController implements InitializingBean, DisposableBean{
 
     private final Logger logger = Logger.getLogger(MainController.class);
+
     @Autowired
     RabbitSendService rabbitSendService;
+
     @Autowired
     RestTemplate restTemplate;
+
     @Inject
     @Qualifier("singletonDouble")
     Double doubleSingleton;
+
     @Autowired
     @Qualifier("prototypeDouble")
     Double doublePrototype;
+
     @Value("#{1 lt 1}")
     private String value;
+
     @Value("${info.contact.email}")
     private String email;
+
     @Autowired
     private PersonRepository personRepository;
 
@@ -119,7 +124,7 @@ public class MainController implements InitializingBean, DisposableBean//, Facto
     }
 
     @GetMapping(value = "/safe/{id}")
-    public Person getPerson2(@PathVariable Long id) {
+    public Person getPersonByIdSafe(@PathVariable Long id) {
         Person person = personService.getPerson(id);
         logger.info("back in controller");
         return person;
@@ -149,32 +154,17 @@ public class MainController implements InitializingBean, DisposableBean//, Facto
 
     @PostConstruct
     public void init() {
-        logger.info("all set init");
+        //logger.info("all set init");
 
     }
 
     @Override
     public void afterPropertiesSet() {
-        logger.info("all set after");
+        //logger.info("all set after");
     }
 
     @Override
     public void destroy() {
-        logger.info("ending");
+        //logger.info("ending");
     }
-
-//    @Override
-//    public Person getObject() {
-//        return null;
-//    }
-//
-//    @Override
-//    public Class<?> getObjectType() {
-//        return null;
-//    }
-//
-//    @Override
-//    public boolean isSingleton() {
-//        return FactoryBean.super.isSingleton();
-//    }
 }

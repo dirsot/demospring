@@ -15,6 +15,7 @@ public class MyInterceptor extends EmptyInterceptor {
 
     private final Set<Object> inserts = new HashSet<>();
 
+    @Override
     public boolean onSave(Object entity, Serializable id, Object[] state,
                           String[] propertyNames, Type[] types)
             throws CallbackException {
@@ -22,9 +23,11 @@ public class MyInterceptor extends EmptyInterceptor {
         return false;
     }
 
+    @Override
     public void postFlush(Iterator iterator) throws CallbackException {
         for (Object object : inserts) {
-            logger.info("[INTERCEPTOR] Object created : " + object);
+            logger.info("[INTERCEPTOR] post save : " + object);
         }
+        inserts.clear();
     }
 }
