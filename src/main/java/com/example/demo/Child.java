@@ -3,6 +3,8 @@ package com.example.demo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.io.Serializable;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Cache(region= "child", usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Child implements Serializable {
     @Id
     @GeneratedValue  //set in constructor

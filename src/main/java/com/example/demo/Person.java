@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.*;
 
@@ -58,6 +59,7 @@ import java.util.*;
 @Check(constraints = "regexp_like(surname,'^a')")
 @FilterDef(name = "idFilter", parameters = @ParamDef(name = "fromId", type = "long"))
 @Filter(name = "idFilter", condition = "id > :fromId")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Person implements Serializable {
 
     private final Long age = 2L;
@@ -91,11 +93,13 @@ public class Person implements Serializable {
     @Column(nullable = true, updatable = true)
     private Date startDate;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection
 //    @SortNatural
     @Cascade(value = CascadeType.ALL)
     private Set<String> list = new HashSet<>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.LAZY)
     private Map<String, Long> map = new HashMap<>();
 
@@ -111,6 +115,7 @@ public class Person implements Serializable {
     @Filter(name = "idFilter", condition = "id > :fromId")
 //    @Fetch(FetchMode.SUBSELECT)// select when list is called
 //    @LazyToOne(LazyToOneOption.NO_PROXY)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Child> children = new HashSet<>();
 
     public Person(String name, String surname) {
